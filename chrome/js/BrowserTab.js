@@ -53,9 +53,8 @@ BrowserTab.prototype.tabPanelView = function() {
     '" class="browser-tab-panel"><menu class="browser-toolbar">' +
     '<form class="url-bar"><input type="text" class="url-bar-input">' +
     '<button class="url-bar-button" type="submit"/></form></menu>' +
-    '<iframe src="' + this.currentUrl + '" id="browser-tab-frame' +
-    this.windowId + '-' + this.id + '" class="browser-tab-frame" mozbrowser ' +
-    ' remote></div>';
+    '<webian-webview src="' + this.currentUrl + '" id="browser-tab-frame' +
+    this.windowId + '-' + this.id + '" class="browser-tab-frame"></div>';
 };
 
 /**
@@ -75,18 +74,24 @@ BrowserTab.prototype.renderTabPanel = function() {
   this.tabPanelContainer.insertAdjacentHTML('beforeend', this.tabPanelView());
   this.tabPanelElement = document.getElementById('tab-panel' + this.windowId +
     '-' + this.id);
-  this.frame = document.getElementById('browser-tab-frame' + this.windowId +
-    '-' + this.id);
+  /*this.frame = document.getElementById('browser-tab-frame' + this.windowId +
+    '-' + this.id);*/
   this.urlBar = this.tabPanelElement.getElementsByClassName('url-bar')[0];
   this.urlBarInput = this.tabPanelElement.getElementsByClassName(
     'url-bar-input')[0];
   this.urlBarButton = this.tabPanelElement.getElementsByClassName(
     'url-bar-button')[0];
+  /*this.browserFrame = new BrowserFrame(
+    this.tabPanelElement,
+    this.currentUrl,
+    'browser-tab-frame' + this.windowId + '-' + this.id,
+    'browser-tab-frame'
+  );*/
   this.urlBar.addEventListener('submit', this.handleSubmit.bind(this));
-  this.frame.addEventListener('mozbrowsertitlechange',
+  /*this.frame.addEventListener('mozbrowsertitlechange',
     this.handleTitleChange.bind(this));
   this.frame.addEventListener('mozbrowserlocationchange',
-      this.handleLocationChange.bind(this));
+      this.handleLocationChange.bind(this));*/
 };
 
 /**
@@ -134,7 +139,7 @@ BrowserTab.prototype.handleSubmit = function(e) {
       return;
     }
   }
-  this.frame.src = url;
+  this.browserFrame.src = url;
   this.urlBarInput.blur();
 };
 
@@ -149,7 +154,7 @@ BrowserTab.prototype.handleTitleChange = function(e) {
 
 /**
  * Handle a change in document location.
- *
+ *this.currentUrl
  * @param Event e mozbrowserlocationchange event.
  */
 BrowserTab.prototype.handleLocationChange = function(e) {
