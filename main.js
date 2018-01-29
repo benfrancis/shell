@@ -5,6 +5,8 @@
  */
 
 const electron = require('electron');
+const express = require('express');
+const server = express();
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
@@ -12,25 +14,35 @@ const url = require('url');
 
 let mainWindow;
 
+function startServer() {
+  server.use(express.static('content'));
+  server.listen(8080, () => console.log('Shell server listening on port 8080'));
+};
+
+function startChrome() {
+  // Create the main window
+  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow.setFullScreen(true);
+  // Load shell.html as chrome
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'chrome/shell.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+  // Open DevTools
+  mainWindow.webContents.openDevTools();
+  // Emitted when the window is closed.
+  mainWindow.on('closed', function () {
+    // Dereference the window object
+    mainWindow = null;
+    // Quit Electron
+    app.quit();
+  });
+}
+
 function startShell () {
- // Create the main window
- mainWindow = new BrowserWindow({width: 800, height: 600});
- mainWindow.setFullScreen(true);
- // Load shell.html as chrome
- mainWindow.loadURL(url.format({
-   pathname: path.join(__dirname, 'chrome/shell.html'),
-   protocol: 'file:',
-   slashes: true
- }));
- // Open DevTools
- mainWindow.webContents.openDevTools();
- // Emitted when the window is closed.
- mainWindow.on('closed', function () {
-   // Dereference the window object
-   mainWindow = null;
-   // Quit Electron
-   app.quit();
- });
+  startServer();
+  startChrome();
 };
 
 // Start Shell when Electron is ready

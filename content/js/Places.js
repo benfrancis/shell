@@ -88,7 +88,7 @@
      var pinnedSites = [];
      manifests.forEach(function(manifestObject) {
        manifestObject.icons[0].src = __dirname +
-         '/../config/defaults/icons/' + manifestObject.icons[0].src;
+         'http://localhost:8080/defaults/icons/' + manifestObject.icons[0].src;
        var siteObject = new Site(manifestObject);
        pinnedSites.push(siteObject.id); // Default sites are pinned by default
        this.addSite(siteObject);
@@ -101,7 +101,7 @@
        this.broadcastChannel.postMessage('siteupdated');
      }).bind(this));
    }).bind(this);
-    request.open('GET', __dirname + '/../config/defaults/sites.json', true);
+    request.open('http://localhost:8080/defaults/sites.json', true);
     request.send();
   },
 
