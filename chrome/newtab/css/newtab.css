@@ -1,3 +1,16 @@
+html, body {
+  font-size: 10px;
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+}
+
 body {
   background-color: #5d5d5d;
+}
+
+#top-sites-list {
+  list-style-type: none;
+  padding: 0 5rem;
+  margin: 0;
 }
