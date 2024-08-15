@@ -179,23 +179,7 @@ const Windows = {
     const manifestUrl = event.detail.manifestUrl;
     const documentUrl = event.detail.documentUrl;
     const manifest = event.detail.manifest;
-
-    // Try to parse id from manifest
-    let webApp;
-    try {
-      webApp = new WebApp(manifest, manifestUrl, documentUrl);
-    } catch(error) {
-      console.error('Failed to parse web app manifest retrieved from URL ' + manifestUrl);
-      // TODO: Show error to user
-      return;
-    }
-    const id = webApp.id;
-
-    Database.createApp(id, manifestUrl, documentUrl, manifest).then(() => {
-      console.log('Successfully pinned app with id: ' + id);
-    }).catch((error) => {
-      console.error('Error pinning app with id: ' + id);
-    });
+    WebApps.create(manifestUrl, documentUrl, manifest);
   },
 
   /**

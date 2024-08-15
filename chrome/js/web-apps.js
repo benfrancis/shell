@@ -33,11 +33,38 @@ const WebApps = {
   },
 
   /**
+   * Add an app to the database.
+   * 
+   * @param {String} manifestUrl 
+   * @param {String} documentUrl 
+   * @param {Object} manifest
+   * @returns 
+   */
+  create: function(manifestUrl, documentUrl, manifest) {
+    // Try to parse id from manifest
+    let webApp;
+    try {
+      webApp = new WebApp(manifest, manifestUrl, documentUrl);
+    } catch(error) {
+      console.error('Failed to parse web app manifest retrieved from URL ' + manifestUrl);
+      // TODO: Show error to user
+      return;
+    }
+    const id = webApp.id;
+
+    this.db.createApp(id, manifestUrl, documentUrl, manifest).then(() => {
+      console.log('Successfully created app with id: ' + id);
+    }).catch((error) => {
+      console.error('Error creating app with id: ' + id);
+    });
+  },
+
+  /**
    * Get the current list of installed apps.
    * 
    * @returns {Map} A Map of app IDs to WebApp objects.
    */
-  getApps: function() {
+  list: function() {
     return this.apps;
   }
 }
