@@ -1,16 +1,16 @@
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * Window Manager.
+ * Windows View.
  * 
  * Manages app windows.
  */
-const Windows = {
+const WindowsView = {
   /**
-   * Start the window manager.
+   * Start the windows view.
    */
   start: function() {
-    console.log('Starting window manager...');
+    console.log('Starting windows view...');
     this.view = document.getElementById('windows-view');
     this.windowSwitcher = document.getElementById('window-switcher');
     this.windowsElement = document.getElementById('windows');

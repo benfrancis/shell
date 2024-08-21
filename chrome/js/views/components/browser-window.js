@@ -168,7 +168,7 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="https://duckduckgo.com/" preload="js/preload.js"></webview>
+      <webview class="browser-window-webview" src="https://duckduckgo.com/" preload="js/webview-preload.js"></webview>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));

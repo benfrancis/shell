@@ -33,12 +33,12 @@ const Chrome = {
     this.updateClock();
     window.setInterval(this.updateClock.bind(this), 1000);
 
-    // Start database, app manager, window manager and home screen.
+    // Start database, app manager and views.
     Database.start().then(() => {
       WebApps.start(Database);
     });
-    Homescreen.start();
-    Windows.start();
+    HomescreenView.start();
+    WindowsView.start();
     
     // Uncomment the following two lines to open developer tools for webview
     //this.homescreenWebview.addEventListener('dom-ready',
