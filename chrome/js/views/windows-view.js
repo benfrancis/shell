@@ -36,6 +36,10 @@ const WindowsView = {
 
     // The collection of window previews in the window switcher
     this.windowPreviews = new Map();
+
+    // Listen for newly pinned apps
+    window.webApps.addEventListener('_appcreated',
+      this.handleAppCreated.bind(this));
   },
 
   /**
@@ -179,7 +183,18 @@ const WindowsView = {
     const manifestUrl = event.detail.manifestUrl;
     const documentUrl = event.detail.documentUrl;
     const manifest = event.detail.manifest;
-    WebApps.create(manifestUrl, documentUrl, manifest);
+    window.webApps.create(manifestUrl, documentUrl, manifest);
+    // TODO: Show error to user if pinning app fails
+  },
+
+  /**
+   * Handle the creation of a new app in the app manager.
+   * 
+   * @param {Event} event An _appcreated event.
+   */
+  handleAppCreated: function(event) {
+    console.log('Windows view was notified that an app was created');
+    //TODO: Refresh pinned status of windows based on the scope of all saved apps
   },
 
   /**

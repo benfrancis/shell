@@ -35,10 +35,12 @@ const Chrome = {
 
     // Start database, app manager and views.
     Database.start().then(() => {
-      WebApps.start(Database);
+      window.webApps = new WebApps(Database);
+      return window.webApps.start();
+    }).then(() => {
+      WindowsView.start();
+      HomescreenView.start();
     });
-    HomescreenView.start();
-    WindowsView.start();
     
     // Uncomment the following two lines to open developer tools for webview
     //this.homescreenWebview.addEventListener('dom-ready',
