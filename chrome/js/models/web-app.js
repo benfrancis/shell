@@ -55,7 +55,10 @@ class WebApp {
 
       // Process the id member passing json and manifest. 
       manifest.id = this.processIdMember(rawManifest.id, manifest.start_url);
-  
+
+      // Process the scope member passing json, manifest and manifest URL
+      manifest.scope = this.processScopeMember(rawManifest.scope, manifest.start_url, manifestUrl);
+
       manifest.icons = this.processImageResources(rawManifest.icons, manifestUrl);
   
       // Note: Currently no processing steps due to bug in specification
@@ -65,6 +68,45 @@ class WebApp {
       manifest.display = this.processDisplayMember(rawManifest.display);
   
       this.dictionary = manifest;
+    }
+
+    /**
+     * Process navigation scope.
+     * 
+     * Follows the algorithm deined in 
+     * https://www.w3.org/TR/appmanifest/#scope-member
+     * 
+     * @param {String} value The scope value provided in the raw manifest.
+     * @param {String} startUrl The parsed start URL.
+     * @param {String} manifestUrl The URl from which the manifest was retrieved.
+     * @returns {String} The parsed navigation scope.
+     * 
+     */
+    processScopeMember(value, startUrl, manifestUrl) {
+      // Set manifest["scope"] to the result of parsing "." with manifest["start_url"] as the base URL.
+      let scope = new URL('.', startUrl).href;
+      // If json["scope"] is the empty string, then return.
+      if (value === undefined || value === '') {
+        return scope;
+      }
+      // Let scope be the result of parsing json["scope"] with manifest URL as the base URL.
+      let potentialScope;
+      try {
+        potentialScope = new URL(value, manifestUrl);
+      // If scope is failure, return.
+      } catch {
+        return scope;
+      }
+      // Set scope's query and fragment to null.
+      potentialScope.search = '';
+      potentialScope.hash = '';
+      // If manifest["start_url"] is not within scope of scope, return. 
+      if (!this.isWithinScope(startUrl, potentialScope.href)) {
+        return scope;
+      // Otherwise, set manifest["scope"] to scope. 
+      } else {
+        return potentialScope.href;
+      }
     }
   
     /**
@@ -348,6 +390,32 @@ class WebApp {
         return displayMode;
       } else {
         return undefined;
+      }
+    }
+
+    /**
+     * Determine whether a given URL is within scope of a given navigation scope.
+     * 
+     * Implements the algorithm defined in
+     * https://w3c.github.io/manifest/#dfn-within-scope
+     * 
+     * @param {String} url The URL being tested. 
+     * @param {String} scope The scope against which to test the URL. 
+     * @returns {boolean} True for match and false for no match.
+     */
+    isWithinScope(url, scope) {
+      let urlObject = new URL(url);
+      let scopeObject = new URL(scope);
+
+      // If target and scope are not same origin, return false. 
+      if (urlObject.origin != scopeObject.origin) {
+        return false;
+      }
+
+      if(urlObject.pathname.startsWith(scopeObject.pathname)) {
+        return true;
+      } else {
+        return false;
       }
     }
   

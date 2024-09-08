@@ -78,8 +78,8 @@ class WebApps extends EventTarget {
           let webApp = new WebApp(appRecord.manifest, appRecord.manifestUrl, 
             appRecord.documentUrl);
           this.apps.set(appId, webApp);
-        } catch {
-          console.error('Failed to instantiate web app with id ' + appId);
+        } catch(error) {
+          console.error('Failed to instantiate web app with id ' + appId + ' ' + error);
         }
       });
       return;
