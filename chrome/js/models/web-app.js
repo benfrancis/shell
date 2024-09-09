@@ -83,27 +83,27 @@ class WebApp {
      * 
      */
     processScopeMember(value, startUrl, manifestUrl) {
-      // Set manifest["scope"] to the result of parsing "." with manifest["start_url"] as the base URL.
+      // 'Set manifest["scope"] to the result of parsing "." with manifest["start_url"] as the base URL.'
       let scope = new URL('.', startUrl).href;
-      // If json["scope"] is the empty string, then return.
+      // 'If json["scope"] is the empty string, then return.'
       if (value === undefined || value === '') {
         return scope;
       }
-      // Let scope be the result of parsing json["scope"] with manifest URL as the base URL.
+      // 'Let scope be the result of parsing json["scope"] with manifest URL as the base URL.'
       let potentialScope;
       try {
         potentialScope = new URL(value, manifestUrl);
-      // If scope is failure, return.
+      // 'If scope is failure, return.'
       } catch {
         return scope;
       }
-      // Set scope's query and fragment to null.
+      // 'Set scope's query and fragment to null.'
       potentialScope.search = '';
       potentialScope.hash = '';
-      // If manifest["start_url"] is not within scope of scope, return. 
+      // 'If manifest["start_url"] is not within scope of scope, return.'
       if (!this.isWithinScope(startUrl, potentialScope.href)) {
         return scope;
-      // Otherwise, set manifest["scope"] to scope. 
+      // 'Otherwise, set manifest["scope"] to scope.'
       } else {
         return potentialScope.href;
       }
@@ -400,18 +400,29 @@ class WebApp {
      * https://w3c.github.io/manifest/#dfn-within-scope
      * 
      * @param {String} url The URL being tested. 
-     * @param {String} scope The scope against which to test the URL. 
-     * @returns {boolean} True for match and false for no match.
+     * @param {String} [scope] The scope against which to test the URL. 
+     * @returns {boolean|null} True for match, false for no match or null for missing scope.
      */
     isWithinScope(url, scope) {
+      // If scope not provided as an argument, assume it has already been processed.
+      if(!scope) {
+        scope = this.dictionary.scope;
+      }
+
+      // If scope is still not set then return null.
+      if(!scope) {
+        return null;
+      }
+
       let urlObject = new URL(url);
       let scopeObject = new URL(scope);
 
-      // If target and scope are not same origin, return false. 
+      // "If target and scope are not same origin, return false."
       if (urlObject.origin != scopeObject.origin) {
         return false;
       }
 
+      // "Return a boolean indicating whether targetPath starts with scopePath."
       if(urlObject.pathname.startsWith(scopeObject.pathname)) {
         return true;
       } else {
@@ -505,6 +516,15 @@ class WebApp {
       } else {
         return undefined;
       }
+    }
+
+    /**
+     * Get navigation scope.
+     * 
+     * @return {String} Navigation scope URL.
+     */
+    get scope() {
+      return this.dictionary.scope;
     }
   
     /**
