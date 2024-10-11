@@ -30,6 +30,8 @@ const WindowsView = {
       this.handleCloseWindowButtonClicked.bind(this));
     this.windowsElement.addEventListener('_pinapprequested',
       this.handlePinAppRequest.bind(this));
+    this.windowsElement.addEventListener('_locationchanged', 
+      this.handleWindowLocationChange.bind(this));
 
     // The collection of open windows
     this.windows = new Map();
@@ -185,6 +187,25 @@ const WindowsView = {
     const manifest = event.detail.manifest;
     window.webApps.create(manifestUrl, documentUrl, manifest);
     // TODO: Show error to user if pinning app fails
+  },
+
+  /**
+   * Handle a location change of a window.
+   * 
+   * Check whether the URL matches the navigation scope of a pinned app, and set the display mode
+   * of the window accordingly.
+   * 
+   * @param {*} event 
+   */
+  handleWindowLocationChange: function(event) {
+    const url = event.detail.url;
+    const app = window.webApps.match(url);
+    const windowId = event.target.id;
+    if (app) {
+      this.windows.get(windowId).element.setDisplayMode('standalone');
+    } else {
+      this.windows.get(windowId).element.setDisplayMode('browser');
+    }
   },
 
   /**

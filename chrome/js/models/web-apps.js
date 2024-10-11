@@ -85,4 +85,25 @@ class WebApps extends EventTarget {
       return;
     });
   }
+
+  /**
+   * Get the app whose navigation scope most closely matches the given URL, if any.
+   * 
+   * @param {String} url The page URL to check against navigation scopes.
+   * @returns {WebApp|null} The app with the closest matching navigation scope, if any.
+   */
+  match(url) {
+    let closestMatchingApp = null;
+    this.apps.forEach((app, appId) => {
+      if (app.isWithinScope(url, app.scope)) {
+        if (closestMatchingApp == null) {
+          closestMatchingApp = app;
+        }
+        else if (closestMatchingApp && closestMatchingApp.scope.length > app.scope.length) {
+          closestMatchingApp = app;
+        }
+      }
+    }, this);
+    return closestMatchingApp;
+  }
 }

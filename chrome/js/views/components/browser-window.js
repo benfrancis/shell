@@ -29,6 +29,28 @@ class BrowserWindow extends HTMLElement {
           display: none;
         }
 
+        .title-bar {
+          display: none;
+        }
+
+        :host(.pinned) .title-bar {
+          display: flex;
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 24px;
+          width: calc(100% - 48px);
+          margin: 0;
+          padding: 0 5px;
+          color: #fff;
+        }
+
+        .title-bar-text {
+          line-height: 24px;
+          font-size: 13px;
+          font-family: 'Fira Sans', sans-serif;
+        }
+
         .browser-toolbar {
           display: flex;
           flex-direction: row;
@@ -38,6 +60,10 @@ class BrowserWindow extends HTMLElement {
           margin: 0;
           padding: 8px;
           box-sizing: border-box;
+        }
+
+        :host(.pinned) .browser-toolbar {
+          display: none;
         }
 
         .url-bar {
@@ -158,6 +184,9 @@ class BrowserWindow extends HTMLElement {
           flex: 1;
         }
       </style>
+      <menu class="title-bar">
+        <span class="title-bar-text"></span>
+      </menu>
       <menu class="browser-toolbar">
         <form class="url-bar">
           <span class="spinner"></span>
@@ -172,12 +201,14 @@ class BrowserWindow extends HTMLElement {
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
+    this.element = this.shadowRoot.host;
     this.webview = this.shadowRoot.querySelector('webview');
     this.urlBar = this.shadowRoot.querySelector('.url-bar');
     this.urlBarInput = this.shadowRoot.querySelector('.url-bar-input');
     this.stopButton = this.shadowRoot.querySelector('.stop-button');
     this.reloadButton = this.shadowRoot.querySelector('.reload-button');
     this.favicon = this.shadowRoot.querySelector('.favicon');
+    this.titleBarText = this.shadowRoot.querySelector('.title-bar-text');
   }
 
   /**
@@ -270,7 +301,15 @@ class BrowserWindow extends HTMLElement {
     this.currentManifestUrl = null;
     this.favicon.src = this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
     this.urlBarInput.value = hostname;
+    this.titleBarText.textContent = hostname;
     this.urlBarInput.blur();
+    // Dispatch _locationchanged event
+    this.dispatchEvent(new CustomEvent('_locationchanged', {
+      detail: {
+        url: event.url
+      },
+      bubbles: true
+    }));
   }
 
   /**
@@ -422,7 +461,8 @@ class BrowserWindow extends HTMLElement {
           name || '', hostname, appIconUrl || faviconUrl, true
         );
         this.shadowRoot.appendChild(siteInfoMenu);
-        siteInfoMenu.addEventListener('_pinappbuttonclicked', this.pinApp.bind(this));
+        siteInfoMenu.addEventListener('_pinappbuttonclicked',
+          this.dispatchPinAppRequest.bind(this));
       }).catch((error) => {
         console.error('Failed to fetch or parse web app manifest: ' + error);
         // Fall back to showing site info.
@@ -515,9 +555,9 @@ class BrowserWindow extends HTMLElement {
   }
 
   /**
-   * Pin the app the current page belongs to.
+   * Dispatch a request to pin the app the current page belongs to.
    */
-  pinApp() {
+  dispatchPinAppRequest() {
     const documentUrl = this.currentUrl;
     const manifestUrl = this.currentManifestUrl;
     if(!manifestUrl) {
@@ -536,9 +576,31 @@ class BrowserWindow extends HTMLElement {
         },
         bubbles: true
       }));
+      // TODO: Move this to an event listener after app successfully saved
+      this.setDisplayMode('standalone');
     }).catch((error) => {
       console.error('Failed to fetch or parse web app manifest: ' + error);
     });
+  }
+
+  /**
+   * Set the display mode of the window.
+   * 
+   * @param {integer} mode The display mode to set
+   */
+  setDisplayMode(mode) {
+    switch(mode) {
+      case 'browser':
+      case 'mimimal-ui':
+        this.element.classList.remove('pinned');
+        break;
+      case 'standalone':
+      case 'fullscreen':
+        this.element.classList.add('pinned');
+        break;
+      default:
+        this.element.classList.remove('pinned');
+    }
   }
 }
 
